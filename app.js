@@ -11,11 +11,17 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 var connector = new builder.ChatConnector();
 var bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
-
+server.get('/',respond);
 //=========================================================
 // Bots Dialogs
 //=========================================================
 
 bot.dialog('/', function (session) {
+	
     session.send("Hello World");
 });
+
+function respond(req, res, next) {
+  res.send('Hi, I am Chitti the Robot. Speed 1 terahertz, memory 1 zigabyte.');
+  next();
+}
