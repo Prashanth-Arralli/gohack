@@ -1,0 +1,2 @@
+# gohack
+Bot for hackthon
