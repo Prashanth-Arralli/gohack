@@ -1,0 +1,23 @@
+{
+  "name": "gohack",
+  "version": "1.0.0",
+  "description": "bot that plans your date",
+  "main": "app.js",
+  "scripts": {
+    "test": "startbot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Prashanth-Arralli/gohack.git"
+  },
+  "author": "Prashanth",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Prashanth-Arralli/gohack/issues"
+  },
+  "homepage": "https://github.com/Prashanth-Arralli/gohack#readme",
+  "dependencies": {
+    "botbuilder": "^3.5.3",
+    "restify": "^4.3.0"
+  }
+}
