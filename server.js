@@ -56,8 +56,9 @@ intents.onDefault([
 ]);
 
 intents.matches(/^emojis/, [
-    function (session) {
-          session.send({"text" : "(heart)"});
+    function (session, results) {
+          var emoji = "("+results.response+")" ;
+          session.send({ "text": emoji});
     }
   ]);
 
