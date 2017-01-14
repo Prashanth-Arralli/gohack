@@ -55,6 +55,13 @@ intents.onDefault([
     }
 ]);
 
+intents.matches(/^emojis/, [
+    function (session) {
+          session.send({"text" : "(heart)"});
+    }
+  ]);
+
+
 bot.dialog('/profile',[
   function(session){
     builder.Prompts.text(session,'Hi! What is your name?') ;
