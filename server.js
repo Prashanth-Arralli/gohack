@@ -17,7 +17,39 @@ var connector = new builder.ChatConnector({
 server.post('/api/messages', connector.listen());
 server.get('/',respond);
 
+var availableEvents = [
+{name: "shopping", description : "let her go wild", url : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/9.3.07GardenStatePlazaMallbyLuigiNovi.JPG/700px-9.3.07GardenStatePlazaMallbyLuigiNovi.JPG"},
+{name: "Book-Restaurant", description : "good food good love", url : "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Inside_Le_Procope.jpg/440px-Inside_Le_Procope.jpg"},
+{name: "Movie", description : "Nothings in this world can be better", url : "https://upload.wikimedia.org/wikipedia/commons/c/c4/Fox_movietone_2.jpg"},
+{name: "Temple", description : "Eat pray love", url : "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Hampi_virupaksha_temple.jpg/440px-Hampi_virupaksha_temple.jpg"}
+];
 
+
+    var schedule = {10:"NA",
+                11:"NA",
+                12:"NA",
+                13:"NA",
+                14:"NA",
+                15:"NA",
+                16:"NA",
+                17:"NA",
+                18:"NA"
+            }
+    
+function updateSchedule(start, end, event){
+    for(var i = start; i < end ;i++){
+        schedule[i] = event ;
+    }
+}
+var indexEvents = {
+    "shopping":0,
+    "Book-Restaurant":1,
+    "Movie":2,
+    "Temple":3
+}
+function updateAvailableEvents(event){
+    availableEvents.splice(indexEvents[event],1) ;
+}
 // Setup bot and define root waterfall
 var bot = new builder.UniversalBot(connector);
 
@@ -27,7 +59,8 @@ var movieRecognizer = new builder.LuisRecognizer('https://api.projectoxford.ai/l
 var templeRecognizer = new builder.LuisRecognizer('https://api.projectoxford.ai/luis/v2.0/apps/12f2b3db-03ea-4a92-a11f-cf082c64257f?subscription-key=b299e17e8e1a4be28390a2c2c54c4325') ;
 var beachRecongnizer = new builder.LuisRecognizer('https://api.projectoxford.ai/luis/v2.0/apps/85838748-b41f-4a35-81d4-684de5205b7f?subscription-key=b299e17e8e1a4be28390a2c2c54c4325') ;
 var bestPlaceRecognizer = new builder.LuisRecognizer('https://api.projectoxford.ai/luis/v2.0/apps/05dbcc8b-9dd9-46f5-9c5e-f1afde50b07e?subscription-key=b299e17e8e1a4be28390a2c2c54c4325') ;
-var intents = new builder.IntentDialog({recognizers:[shoppingRecognizer,restaurantRecognizer,movieRecognizer,templeRecognizer,beachRecongnizer]}) ;
+var dateIntentRecognizer = new builder.LuisRecognizer('https://api.projectoxford.ai/luis/v2.0/apps/b6b2b894-8119-41f5-a2c4-6149b5ed97b5?subscription-key=b299e17e8e1a4be28390a2c2c54c4325') ;
+var intents = new builder.IntentDialog({recognizers:[shoppingRecognizer,restaurantRecognizer,movieRecognizer,templeRecognizer,beachRecongnizer,dateIntentRecognizer]}) ;
 bot.dialog('/',intents) ;
 intents.matches(/Hello/i,[
     function(session) {
@@ -45,11 +78,27 @@ bot.dialog('intro', [
               session.endDialog();
       }
   ]);
-
-intents.matches(/DateIntent/, [
+intents.matches("DateIntent",'/DateIntent') ;
+bot.dialog('/DateIntent', [
       function(session){
         session.send("so lets begin!!!");
         session.beginDialog('planEnquiry');
+      }
+  ]);
+
+  intents.matches(/^can do^/i, [
+      function(session){
+        session.send("I can help you in planning your Date");
+        builder.Prompts.confirm(session, "would you like to plan a date ? say yes please!!! I love that");
+      },function(session,results){
+        if(results.response){
+          session.send("so lets begin!!!");
+          session.beginDialog("planEnquiry");
+        }
+        else{
+          session.send("I would have loved that but any ways catch you later");
+          session.endDialog();
+        }
       }
   ]);
 
@@ -255,21 +304,91 @@ intents.matches('Beach','/Beach') ;
 intents.matches('Best spots in the city','/BestPlaces') ;
 bot.dialog('/Book-Restaurant',[
     function(session){
+        session.send("Let's  schedule your restaurant") ;
+        builder.Prompts.choice(session,'Do you want to go for ','lunch|dinner') ;
         session.send('Your Restaurant has booked') ;
         session.endDialog() ;
+    },
+    function(session,results){
+        if(results.response == 0){
+            updateSchedule("12PM","1PM","Lunch");
+            builder.Prompts.choice(session,'What kind of cuisines you like ','Indian|Chinese|International') ;
+        }else if(results.response == 1){
+            updateSchedule("5PM","6PM","Dinner");
+            builder.Prompts.choice(session,'What kind of cuisines you like ','Indian|Chinese|International') ;
+        }else {
+            builder.Prompts.choice(session,'Do you want to go for ','lunch|dinner') ;
+            updateAvailableEvents("Book-Restaurant") ;
+            session.send('Your restaurant has scheduled') ;
+            bot.beginDialog("/"+availableEvents[0].name) ;
+        }
+    },
+    function(session,results){
+        session.userData.restaurant = results.response ;
     }
 ]) ;
 bot.dialog('/shopping',[
+    
     function(session){
-        session.send('Your are ready for shopping') ;
-        session.endDialog() ;
+        session.send("Let's  schedule your shopping") ;
+        builder.Prompts.choice(session,'What do you want to shop','Clothes|Jewellery|Apparels') ;
+    },
+    function(session,results){
+        if(results.response == 0){
+            //updateSchedule("12PM","1PM","Lunch");
+            session.userData.shopping = "Clothes" ;
+            updateAvailableEvents("shopping") ;
+            session.send('Your shopping has scheduled') ;
+            bot.beginDialog("/"+availableEvents[0]) ;
+          //  builder.Prompts.choice(session,'What kind of cuisines you like ','Indian|Chinese|International') ;
+        }else if(results.response == 1){
+           // updateSchedule("5PM","6PM","Dinner");
+            session.userData.shopping = "Jewellery" ;
+             updateAvailableEvents("shopping") ;
+            session.send('Your shopping has scheduled') ;
+            bot.beginDialog("/"+availableEvents[0]) ;
+           // builder.Prompts.choice(session,'What kind of cuisines you like ','Indian|Chinese|International') ;
+        }else if(results.response == 2){
+           // updateSchedule("5PM","6PM","Dinner");
+            session.userData.shopping = "Apparels" ;
+            updateAvailableEvents("shopping") ;
+            session.send('Your shopping has scheduled') ;
+            bot.beginDialog("/"+availableEvents[0]) ;
+        }
+           // builder.Prompts.choice(session,'What kind of cuisines you like ','Indian|Chinese|International') ;
+        // }else {
+        //     builder.Prompts.choice(session,'Do you want to go for ','lunch|dinner') ;
+        //     updateAvailableEvents() ;
+        //     bot.beginDialog(availableEvents[0]) ;
+        // }
     }
 ]) ;
 
 bot.dialog('/Movie',[
     function(session){
-        session.send('Your Movie has booked') ;
-        session.endDialog() ;
+        session.send("Let's  plan your Movie") ;
+        builder.Prompts.choice(session,'What Genre do you want to watch?','Romance|Comedy|Acion') ;
+    },
+    function(session,results){
+        session.userData.movieGenre = results.response ;
+        builder.Prompts.choice(session,'Which show is good for ?','Morning|Afternoon') ;
+    },
+    function(session,results){
+        if(results.response == 0){
+            //updateSchedule("12PM","1PM","Lunch");
+            updateSchedule("10PM","12PM","Movie");
+            updateAvailableEvents("shopping") ;
+            session.send('Your Movie has booked through go-jek') ;
+            bot.beginDialog("/"+availableEvents[0]) ;
+          //  builder.Prompts.choice(session,'What kind of cuisines you like ','Indian|Chinese|International') ;
+        }else if(results.response == 1){
+           // updateSchedule("5PM","6PM","Dinner");
+            updateSchedule("2PM","4PM","Movie");
+            updateAvailableEvents("movie") ;
+            session.send('Your Movie has booked through Go-Tix and cab has scheduled through Go-Cab') ;
+            bot.beginDialog("/"+availableEvents[0]) ;
+           // builder.Prompts.choice(session,'What kind of cuisines you like ','Indian|Chinese|International') ;
+        }
     }
 ]) ;
 
