@@ -1,0 +1,60 @@
+{
+  "luis_schema_version": "1.3.0",
+  "name": "moviebooking",
+  "desc": "Shedule a movie",
+  "culture": "en-us",
+  "intents": [
+    {
+      "name": "BookMovie"
+    },
+    {
+      "name": "None"
+    }
+  ],
+  "entities": [
+    {
+      "name": "MovieTitle"
+    }
+  ],
+  "composites": [],
+  "closedLists": [],
+  "bing_entities": [],
+  "actions": [],
+  "model_features": [
+    {
+      "name": "Book",
+      "mode": true,
+      "words": "Book,schedule",
+      "activated": true
+    }
+  ],
+  "regex_features": [],
+  "utterances": [
+    {
+      "text": "book a movie",
+      "intent": "BookMovie",
+      "entities": []
+    },
+    {
+      "text": "schedule a movie",
+      "intent": "BookMovie",
+      "entities": []
+    },
+    {
+      "text": "i would like to go for movie",
+      "intent": "BookMovie",
+      "entities": []
+    },
+    {
+      "text": "book tickets for avengers movie",
+      "intent": "BookMovie",
+      "entities": [
+        {
+          "entity": "MovieTitle",
+          "startPos": 3,
+          "endPos": 3
+        }
+      ]
+    }
+  ]
+}
