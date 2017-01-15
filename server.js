@@ -60,8 +60,8 @@ bot.dialog('planEnquiry', [
           session.send("ok lets listen what you got...we can work on it...");
           session.beginDialog('mediumPlan');
         }
-        else if(results.response < 1){
-          session.send("dont worry we will get there...me and gojek  am here to help you after all");
+        else if(results.response <= 1){
+          session.send("dont worry we will get there...me and 'gojek' are here to help you after all");
           session.beginDialog('noPlan');
         }
         else{
@@ -72,11 +72,60 @@ bot.dialog('planEnquiry', [
         startedPlanning = true;
       }
   ])
+var arr = [];
+var url = "https://www.google.co.in/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwj6gbjhgcPRAhVFqY8KHRQyC4cQjRwIBw&url=https%3A%2F%2Ftheculturetrip.com%2Feurope%2Funited-kingdom%2Fengland%2Farticles%2Fliverpool-s-10-best-cultural-restaurants-fine-dining-and-local-eats-1%2F&psig=AFQjCNFC0CKM_2DZ4n7C9F5_LUgexL4MfA&ust=1484530645258447";
 bot.dialog('noPlan',[
-    function(session){
-      session.send("noplan");
-      session.endDialog();
-    }
+
+    function (session) {
+         // Ask the user to select an item from a carousel.
+        var msg = new builder.Message(session)
+            .textFormat(builder.TextFormat.xml)
+            .attachmentLayout(builder.AttachmentLayout.carousel)
+            .attachments([
+                new builder.HeroCard(session)
+                    .title("Space Needle")
+                    .text("The <b>Space Needle</b> is an observation tower in Seattle, Washington, a landmark of the Pacific Northwest, and an icon of Seattle.")
+                    .images([
+                        builder.CardImage.create(session, url)
+                            .tap(builder.CardAction.showImage(session, url)),
+                    ])
+                    .buttons([
+                        builder.CardAction.openUrl(session, "https://en.wikipedia.org/wiki/Space_Needle", "Wikipedia"),
+                        builder.CardAction.imBack(session, "select:100", "Select")
+                    ]),
+                new builder.HeroCard(session)
+                    .title("Pikes Place Market")
+                    .text("<b>Pike Place Market</b> is a public market overlooking the Elliott Bay waterfront in Seattle, Washington, United States.")
+                    .images([
+                        builder.CardImage.create(session, url)
+                            .tap(builder.CardAction.showImage(session, url)),
+                    ])
+                    .buttons([
+                        builder.CardAction.openUrl(session, "https://en.wikipedia.org/wiki/Pike_Place_Market", "Wikipedia"),
+                        builder.CardAction.imBack(session, "select:101", "Select")
+                    ]),
+                new builder.HeroCard(session)
+                    .title("EMP Museum")
+                    .text("<b>EMP Musem</b> is a leading-edge nonprofit museum, dedicated to the ideas and risk-taking that fuel contemporary popular culture.")
+                    .images([
+                        builder.CardImage.create(session, url)
+                            .tap(builder.CardAction.showImage(session, url))
+                    ])
+                    .buttons([
+                        builder.CardAction.openUrl(session, "https://en.wikipedia.org/wiki/EMP_Museum", "Wikipedia"),
+                        builder.CardAction.imBack(session, "select:102", "Select")
+                    ])
+            ]);
+        builder.Prompts.choice(session, msg, "select:100|select:101|select:102");
+        session.send("choose one event");
+        },
+        function (session, results) {
+            if (results.response) {
+              session.endDialog();
+            } else {
+                session.endDialog("Nothing selected");
+            }
+        }
   ]);
 
 bot.dialog('mediumPlan',[
